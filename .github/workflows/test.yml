@@ -1,0 +1,40 @@
+name: VS Code extension checks
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Download and verify pinned formatter
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/revofmt"
+          cd "$RUNNER_TEMP/revofmt"
+          for file in revofmt-linux-x86_64-gnu LICENSE REVO-LICENSE.txt THIRD_PARTY.md; do
+            curl --fail --location --silent --show-error --output "$file" \
+              "https://github.com/w0x7y/revo-formatter/releases/download/v0.1.0/$file"
+          done
+          echo "37c4dc23857299aca5d4f1b98f838f5f1f7c8ac75e118bcf24390a5b99a654a1  revofmt-linux-x86_64-gnu" | sha256sum --check
+          chmod +x revofmt-linux-x86_64-gnu
+          echo "REVOFMT_BIN=$RUNNER_TEMP/revofmt/revofmt-linux-x86_64-gnu" >> "$GITHUB_ENV"
+      - name: Verify formatter transport and editor lifecycle
+        run: scripts/verify
+      - name: Install packaging dependencies
+        run: npm ci
+      - name: Build the VSIX
+        run: npm run package
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: revofmt-vsix
+          path: revofmt-0.1.2.vsix
+          if-no-files-found: error
