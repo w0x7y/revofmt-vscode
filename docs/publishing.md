@@ -17,6 +17,21 @@ The upload file is `revofmt-0.1.2.vsix`. It contains the extension runtime,
 metadata, README and license. Tests, packaging dependencies and repository-only
 guides are excluded. The formatter executable is installed separately.
 
+## GitHub release
+
+The standalone `v0.1.2` release distributes `revofmt-0.1.2.vsix` and its
+`SHA256SUMS` manifest. Build the VSIX from the release checkout, then generate
+the manifest in the same directory:
+
+```sh
+sha256sum revofmt-0.1.2.vsix > SHA256SUMS
+sha256sum --check SHA256SUMS
+```
+
+Attach both files to the GitHub release. Users can verify the downloaded VSIX
+and install it directly without a Marketplace account. GitHub publication and
+Marketplace publication are separate; the Marketplace status below still applies.
+
 ## publish through the browser
 
 1. Sign in to the [Marketplace publisher page](https://marketplace.visualstudio.com/manage).
@@ -56,7 +71,7 @@ No local publishing credential or signed-in Marketplace session was available.
 The owner chose to handle Microsoft sign-in later. No Marketplace upload has
 been made as part of this preparation.
 
-All 49 unit and process checks passed against the real release formatter. The
+All 52 unit and process checks passed against the real release formatter. The
 rebuilt VSIX contains 10 files; its runtime and license match this checkout, and
 its README links resolve to the public repository. Native host verification is
 recorded separately in the [development guide](development.md#standalone-verification).

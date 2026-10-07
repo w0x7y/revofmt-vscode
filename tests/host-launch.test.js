@@ -88,3 +88,75 @@ test('successful wrapper exit without a host result never passes', { skip: proce
   assert.equal(result.stdout, '');
   assert.equal(result.stderr, '');
 });
+
+test('successful host cleanup waits for shutdown profile writes', { skip: process.platform === 'win32' }, async () => {
+  const result = await runLauncher(`
+const path = require('node:path');
+const workspace = process.argv.at(-1);
+const profile = path.join(path.dirname(workspace), 'data');
+process.on('SIGTERM', () => {
+  setTimeout(() => {
+    fs.mkdirSync(profile, { recursive: true });
+    fs.writeFileSync(path.join(profile, 'Preferences'), 'shutdown state');
+    fs.writeFileSync(path.join(process.env.TMPDIR, 'shutdown.complete'), 'done');
+    process.exit(0);
+  }, 100);
+});
+fs.writeFileSync(path.join(workspace, 'result.json.tmp'), '{"success":true}');
+fs.renameSync(path.join(workspace, 'result.json.tmp'), path.join(workspace, 'result.json'));
+setInterval(() => {}, 1000);
+`);
+  assert.equal(result.timedOut, false);
+  assert.equal(result.code, 0, result.stderr);
+  assert.ok(result.files.includes('shutdown.complete'), 'host must finish shutdown before cleanup returns');
+  assert.equal(result.files.some(file => file.startsWith('revofmt-vscode-host-')), false, 'shutdown profile writes removed');
+  assert.equal(result.stderr, '');
+});
+
+test('early-exiting wrapper waits for its host shutdown profile writes', { skip: process.platform === 'win32' }, async () => {
+  const result = await runLauncher(`
+const path = require('node:path');
+const { spawn } = require('node:child_process');
+const workspace = process.argv.at(-1);
+const host = spawn(process.execPath, ['-e', \`
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const workspace = process.argv[1];
+  const profile = path.join(path.dirname(workspace), 'data');
+  process.on('SIGTERM', () => {
+    setTimeout(() => {
+      fs.mkdirSync(profile, { recursive: true });
+      fs.writeFileSync(path.join(profile, 'Preferences'), 'shutdown state');
+      fs.writeFileSync(path.join(process.env.TMPDIR, 'shutdown.complete'), 'done');
+      process.exit(0);
+    }, 200);
+  });
+  fs.writeFileSync(path.join(workspace, 'result.json.tmp'), '{"success":true}');
+  fs.renameSync(path.join(workspace, 'result.json.tmp'), path.join(workspace, 'result.json'));
+  setInterval(() => {}, 1000);
+\`, workspace], { stdio: 'ignore' });
+host.unref();
+process.exit(0);
+`);
+  assert.equal(result.timedOut, false);
+  assert.equal(result.code, 0, result.stderr);
+  assert.ok(result.files.includes('shutdown.complete'), 'descendant host must finish shutdown before cleanup returns');
+  assert.equal(result.files.some(file => file.startsWith('revofmt-vscode-host-')), false, 'descendant shutdown profile writes removed');
+  assert.equal(result.stderr, '');
+});
+
+test('host shutdown deadline fails and retains profile evidence', { skip: process.platform === 'win32' }, async () => {
+  const result = await runLauncher(`
+const path = require('node:path');
+const workspace = process.argv.at(-1);
+process.on('SIGTERM', () => {});
+fs.writeFileSync(path.join(workspace, 'result.json.tmp'), '{"success":true}');
+fs.renameSync(path.join(workspace, 'result.json.tmp'), path.join(workspace, 'result.json'));
+setInterval(() => {}, 1000);
+`);
+  assert.equal(result.timedOut, false, 'runner must bound shutdown and terminate its isolated host');
+  assert.equal(result.code, 1);
+  assert.match(result.stderr, /host shutdown did not complete/);
+  assert.match(result.stdout, /Host evidence retained at /);
+  assert.equal(result.files.some(file => file.startsWith('revofmt-vscode-host-')), true, 'shutdown failure evidence retained');
+});

@@ -16,7 +16,7 @@ REVOFMT_BIN=/absolute/path/to/revofmt scripts/verify
 ```
 
 The test executable defaults to `revofmt` on PATH. `REVOFMT_BIN` overrides it.
-The 49 tests exercise real CLI transport and a VS Code API test double for
+The 52 tests exercise real CLI transport and a VS Code API test double for
 provider registration, edit application, workspace trust, document lifecycle
 and cancellation. Controlled subprocesses cover malformed output, byte limits,
 termination, and native launcher cleanup. These tests do not start VS Code.
@@ -42,6 +42,13 @@ exits fail promptly. It closes only its isolated host and removes successful
 temporary data. Failures retain logs and results. Set `REVOFMT_HOST_KEEP=1` to
 retain a successful run too.
 
+After signaling shutdown, cleanup waits up to two seconds for the isolated
+process group to exit, including hosts whose launcher already exited. On Windows
+it tracks the direct launcher process. If shutdown cannot be confirmed, the
+runner force-terminates that isolated target, retains the profile and reports
+failure. Regressions check delayed profile writes from both direct hosts and
+early-exiting wrappers, plus evidence retention when shutdown exceeds its deadline.
+
 The test does not establish minimum-version compatibility, remote workspace
 behavior, Restricted Mode, undo, save actions or every line-ending edge case.
 For additional manual checks, use a disposable workspace and exercise those
@@ -60,10 +67,10 @@ tests, npm dependencies, lockfiles and repository-only guides from the archive.
 Runtime source, package metadata, README and the MIT license are included.
 Rebuild whenever any of those files change.
 
-The CI workflow downloads formatter `v0.1.0` for Linux x86_64 GNU and verifies
-SHA-256 `37c4dc23857299aca5d4f1b98f838f5f1f7c8ac75e118bcf24390a5b99a654a1`.
+The CI workflow downloads formatter `v0.1.1` for Linux x86_64 GNU and verifies
+SHA-256 `bcc31238dff6b533c10a23c71e110d6e3211bbedb22dcde4d13f19b986e8937c`.
 Update the formatter release and checksum together after verifying a new release.
-CI runs the 49 tests and builds the VSIX; it does not start a native editor.
+CI runs the 52 tests and builds the VSIX; it does not start a native editor.
 
 ## Buffer preservation
 
@@ -87,7 +94,7 @@ language-specific save overrides when using format-on-save.
 
 ## Standalone verification
 
-On 2026-10-07, all 49 tests passed with the real formatter. The native host
+On 2026-10-07, all 52 tests passed with the real formatter. The native host
 regression passed on Linux x86_64 GNU with VS Code 1.140.0 and extension 0.1.2.
 It recognized both suffixes, activated automatically, formatted unsaved buffers
 and reached a fixed point without changing the backing files.

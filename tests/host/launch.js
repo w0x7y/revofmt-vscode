@@ -65,13 +65,30 @@ async function main() {
   } finally {
     // The detached group belongs only to this isolated host, never the user's
     // running window. The test harness also closes its window when run returns.
+    let stopped = true;
     if (child?.pid) {
-      try { process.kill(process.platform === 'win32' ? child.pid : -child.pid, 'SIGTERM'); }
+      const host = process.platform === 'win32' ? child.pid : -child.pid;
+      try { process.kill(host, 'SIGTERM'); }
       catch (error) { if (error.code !== 'ESRCH') throw error; }
+      // A wrapper can exit while its host still writes profile state. Poll the
+      // isolated group, rather than the wrapper's already-completed close event.
+      const deadline = Date.now() + 2000;
+      for (;;) {
+        try { process.kill(host, 0); }
+        catch (error) { if (error.code === 'ESRCH') break; throw error; }
+        if (Date.now() >= deadline) {
+          stopped = false;
+          try { process.kill(host, 'SIGKILL'); }
+          catch (error) { if (error.code !== 'ESRCH') throw error; }
+          break;
+        }
+        await delay(20);
+      }
     }
     await log.close();
-    if (passed && process.env.REVOFMT_HOST_KEEP !== '1') await fs.rm(directory, { recursive: true, force: true });
+    if (passed && stopped && process.env.REVOFMT_HOST_KEEP !== '1') await fs.rm(directory, { recursive: true, force: true, maxRetries: 5, retryDelay: 50 });
     else console.log(`Host evidence retained at ${directory}`);
+    if (!stopped) throw new Error('VS Code host shutdown did not complete within 2000 ms');
   }
 }
 

@@ -19,7 +19,16 @@ check that it's on your PATH:
 revofmt --version
 ```
 
-with node.js >=22 and npm, clone and package the extension:
+download the [VSIX](https://github.com/w0x7y/revofmt-vscode/releases/download/v0.1.2/revofmt-0.1.2.vsix)
+and [SHA256SUMS](https://github.com/w0x7y/revofmt-vscode/releases/download/v0.1.2/SHA256SUMS)
+from the standalone extension release. from the directory containing both files:
+
+```sh
+sha256sum --check SHA256SUMS && \
+  code --install-extension revofmt-0.1.2.vsix
+```
+
+to build the extension yourself, use node.js >=22 and npm:
 
 ```sh
 git clone https://github.com/w0x7y/revofmt-vscode.git
@@ -116,7 +125,7 @@ npm test                               # revofmt on PATH
 REVOFMT_BIN=/absolute/path/to/revofmt scripts/verify
 ```
 
-the 49 tests cover real CLI formatting, byte preservation, document changes,
+the 52 tests cover real CLI formatting, byte preservation, document changes,
 workspace trust, cancellation, deadlines and process cleanup.
 
 with a desktop vs code and a working display, run the separate native host test:
