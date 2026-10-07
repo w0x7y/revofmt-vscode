@@ -30,7 +30,8 @@ code --install-extension revofmt-0.1.2.vsix
 ```
 
 you can also use **Extensions: Install from VSIX** in the command palette.
-this is a local VSIX install, not a marketplace release.
+the first marketplace upload is pending account sign-in.
+[the publishing guide](docs/publishing.md) describes the prepared upload.
 
 open a `.rv` or `.revo` file in a trusted workspace. the language should say
 `Revo`. run **Format Document** on this:

@@ -97,6 +97,11 @@ bytes and full license match this checkout, and it excludes tests and npm
 dependencies. README examples, relative links and manifest/lockfile versions
 were checked. These checks did not modify personal editor settings.
 
+## Marketplace publishing
+
+The [publishing guide](publishing.md) covers the reviewed VSIX upload, publisher
+identity and listing validation.
+
 ## API references
 
 - [Formatting providers](https://code.visualstudio.com/api/language-extensions/programmatic-language-features#format-source-code-in-an-editor)
