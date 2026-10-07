@@ -55,10 +55,10 @@ these are the defaults. put your changes in vs code's `settings.json`:
 
 ```json
 {
-	"revofmt.executable": "revofmt",
-	"revofmt.indentWidth": 2,
-	"revofmt.lineWidth": 80,
-	"revofmt.timeoutMs": 5000
+  "revofmt.executable": "revofmt",
+  "revofmt.indentWidth": 2,
+  "revofmt.lineWidth": 80,
+  "revofmt.timeoutMs": 5000
 }
 ```
 
@@ -79,14 +79,14 @@ add this to your user or workspace settings to opt in:
 
 ```json
 {
-	"[revo]": {
-		"editor.defaultFormatter": "w0x7y.revofmt",
-		"editor.formatOnSave": true,
-		"editor.formatOnSaveMode": "file",
-		"files.trimTrailingWhitespace": false,
-		"files.insertFinalNewline": false,
-		"files.trimFinalNewlines": false
-	}
+  "[revo]": {
+    "editor.defaultFormatter": "w0x7y.revofmt",
+    "editor.formatOnSave": true,
+    "editor.formatOnSaveMode": "file",
+    "files.trimTrailingWhitespace": false,
+    "files.insertFinalNewline": false,
+    "files.trimFinalNewlines": false
+  }
 }
 ```
 
