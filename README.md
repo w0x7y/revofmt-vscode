@@ -1,3 +1,5 @@
+**This project is making heavily use of AI Agents, if you have a problem with that just don't use it. Thanks!**
+
 # `revofmt-vscode`, revo formatting in vs code
 
 open a `.rv` or `.revo` file, run **Format Document**, get formatted code.
