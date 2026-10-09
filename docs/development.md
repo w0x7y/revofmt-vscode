@@ -62,7 +62,7 @@ npm ci
 npm run package
 ```
 
-The pinned development-only `@vscode/vsce` builds `revo-formatter-0.1.6.vsix`.
+The pinned development-only `@vscode/vsce` builds `revo-formatter-0.1.7.vsix`.
 The installed extension has no runtime npm dependencies. `.vscodeignore` excludes
 tests, npm dependencies, lockfiles and repository-only guides from the archive.
 Runtime source, package metadata, `images/icon.png`, README and the MIT license

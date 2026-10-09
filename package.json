@@ -1,8 +1,8 @@
 {
   "name": "revo-formatter",
-  "displayName": "Revo Formatter",
+  "displayName": "Revofmt Code Formatter",
   "description": "Format Revo documents through the preservation-checked revofmt CLI.",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "publisher": "w0x7y",
   "license": "MIT",
   "repository": {
@@ -51,7 +51,7 @@
       }
     ],
     "configuration": {
-      "title": "Revo Formatter",
+      "title": "Revofmt Code Formatter",
       "properties": {
         "revofmt.executable": {
           "type": "string",
@@ -89,7 +89,7 @@
   "scripts": {
     "test": "node --test tests/*.test.js",
     "test:host": "node tests/host/launch.js",
-    "package": "vsce package --no-dependencies --out revo-formatter-0.1.6.vsix"
+    "package": "vsce package --no-dependencies --out revo-formatter-0.1.7.vsix"
   },
   "devDependencies": {
     "@vscode/vsce": "4.0.0"
