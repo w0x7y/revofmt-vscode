@@ -36,5 +36,5 @@ jobs:
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: revofmt-vsix
-          path: revo-formatter-0.1.5.vsix
+          path: revo-formatter-0.1.6.vsix
           if-no-files-found: error

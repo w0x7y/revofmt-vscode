@@ -21,13 +21,13 @@ check that it's on your PATH:
 revofmt --version
 ```
 
-download the [VSIX](https://github.com/w0x7y/revofmt-vscode/releases/download/v0.1.5/revo-formatter-0.1.5.vsix)
-and [SHA256SUMS](https://github.com/w0x7y/revofmt-vscode/releases/download/v0.1.5/SHA256SUMS)
+download the [VSIX](https://github.com/w0x7y/revofmt-vscode/releases/download/v0.1.6/revo-formatter-0.1.6.vsix)
+and [SHA256SUMS](https://github.com/w0x7y/revofmt-vscode/releases/download/v0.1.6/SHA256SUMS)
 from the standalone extension release. from the directory containing both files:
 
 ```sh
 sha256sum --check SHA256SUMS && \
-  code --install-extension revo-formatter-0.1.5.vsix
+  code --install-extension revo-formatter-0.1.6.vsix
 ```
 
 to build the extension yourself, use node.js >=22 and npm:
@@ -37,7 +37,7 @@ git clone https://github.com/w0x7y/revofmt-vscode.git
 cd revofmt-vscode
 npm ci
 npm run package
-code --install-extension revo-formatter-0.1.5.vsix
+code --install-extension revo-formatter-0.1.6.vsix
 ```
 
 you can also use **Extensions: Install from VSIX** in the command palette.

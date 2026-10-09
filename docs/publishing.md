@@ -1,7 +1,7 @@
 # marketplace publishing
 
 The replacement Marketplace upload is being prepared. The package
-uses extension ID `w0x7y.revo-formatter`, version `0.1.5`, and the MIT license.
+uses extension ID `w0x7y.revo-formatter`, version `0.1.6`, and the MIT license.
 
 ## prepare the upload
 
@@ -13,19 +13,19 @@ REVOFMT_BIN=/absolute/path/to/revofmt scripts/verify
 npm run package
 ```
 
-The upload file is `revo-formatter-0.1.5.vsix`. It contains the extension runtime,
+The upload file is `revo-formatter-0.1.6.vsix`. It contains the extension runtime,
 metadata, the 512 × 512 PNG icon in `images/icon.png`, README and license.
 Tests, packaging dependencies and repository-only
 guides are excluded. The formatter executable is installed separately.
 
 ## GitHub release
 
-The standalone `v0.1.5` release distributes `revo-formatter-0.1.5.vsix` and its
+The standalone `v0.1.6` release distributes `revo-formatter-0.1.6.vsix` and its
 `SHA256SUMS` manifest. Build the VSIX from the release checkout, then generate
 the manifest in the same directory:
 
 ```sh
-sha256sum revo-formatter-0.1.5.vsix > SHA256SUMS
+sha256sum revo-formatter-0.1.6.vsix > SHA256SUMS
 sha256sum --check SHA256SUMS
 ```
 
@@ -62,7 +62,7 @@ Changing it also changes `editor.defaultFormatter` and the extension identity.
 With publishing authentication already configured, upload the reviewed package:
 
 ```sh
-npx --no-install vsce publish --packagePath revo-formatter-0.1.5.vsix
+npx --no-install vsce publish --packagePath revo-formatter-0.1.6.vsix
 ```
 
 See Microsoft's [publishing guide](https://code.visualstudio.com/api/working-with-extensions/publishing-extension)
@@ -74,15 +74,18 @@ this repository; the existing CI verifies tests and produces a VSIX artifact.
 
 On 2026-10-09, publisher `w0x7y` was available in the public Marketplace.
 Uploading version `0.1.4` as a new extension failed because the name `revofmt`
-already exists. The earlier removal action could not be confirmed. Version
-`0.1.5` uses the replacement name `revo-formatter` and includes the supplied
-Revo icon. The new name still requires Marketplace acceptance and validation;
-GitHub publication does not establish that the Marketplace listing is public.
+already exists. Version `0.1.5` introduced the replacement ID
+`w0x7y.revo-formatter`. Version `0.1.6` keeps that ID and updates the icon
+with a smaller Revo R and small `fmt` text to its right. GitHub publication
+provides the reviewed package; Marketplace publication still requires an
+upload and validation. If the `revo-formatter` listing already exists, use
+its **Update** action.
 
 All 56 unit and process checks passed against formatter `0.1.2` with current
-syntax checks enabled. The native VS Code 1.140.0 host found the new ID and
-formatted unsaved `.rv` and `.revo` buffers idempotently without backing-file
-writes. The VSIX contains 11 files, including the original 512 × 512 PNG and
-its Marketplace icon declaration. Runtime and license bytes match this checkout.
-The separate native host check is documented in the
+syntax checks enabled. The rebuilt VSIX contains 11 files. Its manifest version,
+icon declaration, PNG bytes, runtime and license match this checkout. The icon
+is 512 × 512 and retains the original outer-corner alpha mask.
+
+The [icon editing record](icon.md) includes the generation prompt and asset
+preparation. The separate native host check is documented in the
 [development guide](development.md#run-the-native-host-test).
