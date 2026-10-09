@@ -3,7 +3,7 @@
 This package was extracted from `revo-formatter/editors/vscode` at commit
 `14bafd8ede11829157d0bd15ebd01cc667c4efaa`. Its runtime source and MIT license
 are unchanged. The standalone package owns metadata, test launchers, packaging
-and documentation. It retains extension ID `w0x7y.revofmt`.
+and documentation. The current extension ID is `w0x7y.revo-formatter`.
 
 ## Run the tests
 
@@ -62,7 +62,7 @@ npm ci
 npm run package
 ```
 
-The pinned development-only `@vscode/vsce` builds `revofmt-0.1.4.vsix`.
+The pinned development-only `@vscode/vsce` builds `revo-formatter-0.1.5.vsix`.
 The installed extension has no runtime npm dependencies. `.vscodeignore` excludes
 tests, npm dependencies, lockfiles and repository-only guides from the archive.
 Runtime source, package metadata, `images/icon.png`, README and the MIT license

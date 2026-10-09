@@ -1,7 +1,7 @@
 # marketplace publishing
 
-The first Marketplace upload is being prepared. The package
-uses extension ID `w0x7y.revofmt`, version `0.1.4`, and the MIT license.
+The replacement Marketplace upload is being prepared. The package
+uses extension ID `w0x7y.revo-formatter`, version `0.1.5`, and the MIT license.
 
 ## prepare the upload
 
@@ -13,19 +13,19 @@ REVOFMT_BIN=/absolute/path/to/revofmt scripts/verify
 npm run package
 ```
 
-The upload file is `revofmt-0.1.4.vsix`. It contains the extension runtime,
+The upload file is `revo-formatter-0.1.5.vsix`. It contains the extension runtime,
 metadata, the 512 × 512 PNG icon in `images/icon.png`, README and license.
 Tests, packaging dependencies and repository-only
 guides are excluded. The formatter executable is installed separately.
 
 ## GitHub release
 
-The standalone `v0.1.4` release distributes `revofmt-0.1.4.vsix` and its
+The standalone `v0.1.5` release distributes `revo-formatter-0.1.5.vsix` and its
 `SHA256SUMS` manifest. Build the VSIX from the release checkout, then generate
 the manifest in the same directory:
 
 ```sh
-sha256sum revofmt-0.1.4.vsix > SHA256SUMS
+sha256sum revo-formatter-0.1.5.vsix > SHA256SUMS
 sha256sum --check SHA256SUMS
 ```
 
@@ -39,15 +39,20 @@ Marketplace publication are separate; the Marketplace status below still applies
 2. Select publisher `w0x7y`, or create it if the ID is available and you own it.
 3. Choose **New extension**, then **Visual Studio Code**, and upload the VSIX.
 4. Wait for Marketplace validation. An uploaded package is not yet a public listing.
-5. Check the public listing for `w0x7y.revofmt` and install the Marketplace copy:
+5. Check the public listing for `w0x7y.revo-formatter` and install the Marketplace copy:
 
 ```sh
-code --install-extension w0x7y.revofmt
+code --install-extension w0x7y.revo-formatter
 ```
 
 Verify recognition of `.rv` and `.revo`, formatting of an unsaved buffer,
 idempotence and opt-in save formatting in a disposable trusted workspace. Only
 after the listing is public should the README recommend Marketplace installation.
+
+For later releases, select the existing extension and choose **More Actions** →
+**Update**, then upload the new VSIX. Removing an extension permanently reserves
+its name, including for its original publisher; see Microsoft's
+[removal policy](https://code.visualstudio.com/api/working-with-extensions/publishing-extension#removing-extensions).
 
 The manifest's publisher ID must match an account you can publish through.
 Changing it also changes `editor.defaultFormatter` and the extension identity.
@@ -57,7 +62,7 @@ Changing it also changes `editor.defaultFormatter` and the extension identity.
 With publishing authentication already configured, upload the reviewed package:
 
 ```sh
-npx --no-install vsce publish --packagePath revofmt-0.1.4.vsix
+npx --no-install vsce publish --packagePath revo-formatter-0.1.5.vsix
 ```
 
 See Microsoft's [publishing guide](https://code.visualstudio.com/api/working-with-extensions/publishing-extension)
@@ -68,11 +73,16 @@ this repository; the existing CI verifies tests and produces a VSIX artifact.
 ## current status
 
 On 2026-10-09, publisher `w0x7y` was available in the public Marketplace.
-The extension listing was not yet public. Version `0.1.4` is prepared for upload
-with the supplied Revo icon; publication still requires Marketplace validation.
+Uploading version `0.1.4` as a new extension failed because the name `revofmt`
+already exists. The earlier removal action could not be confirmed. Version
+`0.1.5` uses the replacement name `revo-formatter` and includes the supplied
+Revo icon. The new name still requires Marketplace acceptance and validation;
+GitHub publication does not establish that the Marketplace listing is public.
 
 All 56 unit and process checks passed against formatter `0.1.2` with current
-syntax checks enabled. The rebuilt VSIX contains 11 files, including the original
-512 × 512 PNG and its Marketplace icon declaration. Runtime and license bytes
-match this checkout. The separate native host check is documented in the
-[development guide](development.md#standalone-verification).
+syntax checks enabled. The native VS Code 1.140.0 host found the new ID and
+formatted unsaved `.rv` and `.revo` buffers idempotently without backing-file
+writes. The VSIX contains 11 files, including the original 512 × 512 PNG and
+its Marketplace icon declaration. Runtime and license bytes match this checkout.
+The separate native host check is documented in the
+[development guide](development.md#run-the-native-host-test).

@@ -11,7 +11,7 @@ exports.run = async function () {
   const evidence = { vscodeVersion: vscode.version, files: [] };
   try {
     assert.equal(vscode.workspace.isTrusted, true);
-    const extension = vscode.extensions.getExtension('w0x7y.revofmt');
+    const extension = vscode.extensions.getExtension('w0x7y.revo-formatter');
     assert.ok(extension, 'Revo Formatter extension was not discovered');
     evidence.extensionVersion = extension.packageJSON.version;
     for (const suffix of ['rv', 'revo']) {

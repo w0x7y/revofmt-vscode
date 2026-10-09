@@ -9,7 +9,7 @@ const { defaults, document, api, cancellation, apply } = require('./helpers');
 test('manifest recognizes both filenames and registers a native formatting provider', async () => {
   const language = manifest.contributes.languages.find(item => item.id === 'revo');
   for (const filename of ['sample.rv', 'sample.revo']) assert.ok(language.extensions.some(suffix => filename.endsWith(suffix)));
-  assert.equal(manifest.publisher + '.' + manifest.name, 'w0x7y.revofmt');
+  assert.equal(manifest.publisher + '.' + manifest.name, 'w0x7y.revo-formatter');
   const vscode = api({ executable: defaults.executable });
   const context = { subscriptions: [] };
   activateWithApi(vscode, context);
