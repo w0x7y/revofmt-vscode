@@ -22,13 +22,13 @@ jobs:
           cd "$RUNNER_TEMP/revofmt"
           for file in revofmt-linux-x86_64-gnu LICENSE REVO-LICENSE.txt THIRD_PARTY.md; do
             curl --fail --location --silent --show-error --output "$file" \
-              "https://github.com/w0x7y/revo-formatter/releases/download/v0.1.1/$file"
+              "https://github.com/w0x7y/revo-formatter/releases/download/v0.1.2/$file"
           done
-          echo "bcc31238dff6b533c10a23c71e110d6e3211bbedb22dcde4d13f19b986e8937c  revofmt-linux-x86_64-gnu" | sha256sum --check
+          echo "515bc4c74e20f52b111310d27c63fe3bbf33bf58ed17c181815ac39408e3cb6e  revofmt-linux-x86_64-gnu" | sha256sum --check
           chmod +x revofmt-linux-x86_64-gnu
           echo "REVOFMT_BIN=$RUNNER_TEMP/revofmt/revofmt-linux-x86_64-gnu" >> "$GITHUB_ENV"
       - name: Verify formatter transport and editor lifecycle
-        run: scripts/verify
+        run: REVOFMT_CURRENT_SYNTAX=1 scripts/verify
       - name: Install packaging dependencies
         run: npm ci
       - name: Build the VSIX
@@ -36,5 +36,5 @@ jobs:
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: revofmt-vsix
-          path: revofmt-0.1.2.vsix
+          path: revofmt-0.1.3.vsix
           if-no-files-found: error

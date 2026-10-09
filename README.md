@@ -10,7 +10,7 @@ it works on your unsaved buffer. format-on-save is off until you enable it.
 ## get started
 
 you need vs code >=1.85 and [revofmt](https://github.com/w0x7y/revo-formatter).
-[download the formatter](https://github.com/w0x7y/revo-formatter#get)
+[download the formatter](https://github.com/w0x7y/revo-formatter#install)
 or [build it](https://github.com/w0x7y/revo-formatter#build-from-source).
 the download is for linux x86_64 GNU, with glibc >=2.34 and `libgcc_s`.
 this extension doesn't install the formatter for you.
@@ -21,13 +21,13 @@ check that it's on your PATH:
 revofmt --version
 ```
 
-download the [VSIX](https://github.com/w0x7y/revofmt-vscode/releases/download/v0.1.2/revofmt-0.1.2.vsix)
-and [SHA256SUMS](https://github.com/w0x7y/revofmt-vscode/releases/download/v0.1.2/SHA256SUMS)
+download the [VSIX](https://github.com/w0x7y/revofmt-vscode/releases/download/v0.1.3/revofmt-0.1.3.vsix)
+and [SHA256SUMS](https://github.com/w0x7y/revofmt-vscode/releases/download/v0.1.3/SHA256SUMS)
 from the standalone extension release. from the directory containing both files:
 
 ```sh
 sha256sum --check SHA256SUMS && \
-  code --install-extension revofmt-0.1.2.vsix
+  code --install-extension revofmt-0.1.3.vsix
 ```
 
 to build the extension yourself, use node.js >=22 and npm:
@@ -37,7 +37,7 @@ git clone https://github.com/w0x7y/revofmt-vscode.git
 cd revofmt-vscode
 npm ci
 npm run package
-code --install-extension revofmt-0.1.2.vsix
+code --install-extension revofmt-0.1.3.vsix
 ```
 
 you can also use **Extensions: Install from VSIX** in the command palette.
@@ -127,10 +127,10 @@ npm test                               # revofmt on PATH
 REVOFMT_BIN=/absolute/path/to/revofmt scripts/verify
 ```
 
-For a formatter rebuilt against Revo `e94e6d8` or later, add
+For formatter `v0.1.2` or a source build using Revo `e94e6d8` or later, add
 `REVOFMT_CURRENT_SYNTAX=1` to verify range adjacency and invalid interpolation
-mode rejection without edits. These checks are opt-in because CI still uses
-the published formatter built against the earlier compiler.
+mode rejection without edits. CI enables these checks with the pinned `v0.1.2`
+formatter. Leave the option unset when testing an older formatter.
 
 the tests cover real CLI formatting, byte preservation, document changes,
 workspace trust, cancellation, deadlines and process cleanup.

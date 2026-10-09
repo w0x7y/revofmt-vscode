@@ -1,7 +1,7 @@
 # marketplace publishing
 
 The first Marketplace upload is pending Microsoft account sign-in. The package
-uses extension ID `w0x7y.revofmt`, version `0.1.2`, and the MIT license.
+uses extension ID `w0x7y.revofmt`, version `0.1.3`, and the MIT license.
 
 ## prepare the upload
 
@@ -13,18 +13,18 @@ REVOFMT_BIN=/absolute/path/to/revofmt scripts/verify
 npm run package
 ```
 
-The upload file is `revofmt-0.1.2.vsix`. It contains the extension runtime,
+The upload file is `revofmt-0.1.3.vsix`. It contains the extension runtime,
 metadata, README and license. Tests, packaging dependencies and repository-only
 guides are excluded. The formatter executable is installed separately.
 
 ## GitHub release
 
-The standalone `v0.1.2` release distributes `revofmt-0.1.2.vsix` and its
+The standalone `v0.1.3` release distributes `revofmt-0.1.3.vsix` and its
 `SHA256SUMS` manifest. Build the VSIX from the release checkout, then generate
 the manifest in the same directory:
 
 ```sh
-sha256sum revofmt-0.1.2.vsix > SHA256SUMS
+sha256sum revofmt-0.1.3.vsix > SHA256SUMS
 sha256sum --check SHA256SUMS
 ```
 
@@ -56,7 +56,7 @@ Changing it also changes `editor.defaultFormatter` and the extension identity.
 With publishing authentication already configured, upload the reviewed package:
 
 ```sh
-npx --no-install vsce publish --packagePath revofmt-0.1.2.vsix
+npx --no-install vsce publish --packagePath revofmt-0.1.3.vsix
 ```
 
 See Microsoft's [publishing guide](https://code.visualstudio.com/api/working-with-extensions/publishing-extension)

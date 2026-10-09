@@ -62,16 +62,17 @@ npm ci
 npm run package
 ```
 
-The pinned development-only `@vscode/vsce` builds `revofmt-0.1.2.vsix`.
+The pinned development-only `@vscode/vsce` builds `revofmt-0.1.3.vsix`.
 The installed extension has no runtime npm dependencies. `.vscodeignore` excludes
 tests, npm dependencies, lockfiles and repository-only guides from the archive.
 Runtime source, package metadata, README and the MIT license are included.
 Rebuild whenever any of those files change.
 
-The CI workflow downloads formatter `v0.1.1` for Linux x86_64 GNU and verifies
-SHA-256 `bcc31238dff6b533c10a23c71e110d6e3211bbedb22dcde4d13f19b986e8937c`.
+The CI workflow downloads formatter `v0.1.2` for Linux x86_64 GNU and verifies
+SHA-256 `515bc4c74e20f52b111310d27c63fe3bbf33bf58ed17c181815ac39408e3cb6e`.
 Update the formatter release and checksum together after verifying a new release.
-CI runs the 52 tests and builds the VSIX; it does not start a native editor.
+CI enables `REVOFMT_CURRENT_SYNTAX=1`, runs the adapter tests and builds the
+VSIX; it does not start a native editor.
 
 ## Buffer preservation
 
