@@ -16,10 +16,11 @@ REVOFMT_BIN=/absolute/path/to/revofmt scripts/verify
 ```
 
 The test executable defaults to `revofmt` on PATH. `REVOFMT_BIN` overrides it.
-The 52 tests exercise real CLI transport and a VS Code API test double for
+The tests exercise real CLI transport and a VS Code API test double for
 provider registration, edit application, workspace trust, document lifecycle
 and cancellation. Controlled subprocesses cover malformed output, byte limits,
-termination, and native launcher cleanup. These tests do not start VS Code.
+termination, inherited output pipes, and native launcher cleanup. These tests
+do not start VS Code.
 
 ## Run the native host test
 

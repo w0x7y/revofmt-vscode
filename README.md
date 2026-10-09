@@ -127,7 +127,12 @@ npm test                               # revofmt on PATH
 REVOFMT_BIN=/absolute/path/to/revofmt scripts/verify
 ```
 
-the 52 tests cover real CLI formatting, byte preservation, document changes,
+For a formatter rebuilt against Revo `e94e6d8` or later, add
+`REVOFMT_CURRENT_SYNTAX=1` to verify range adjacency and invalid interpolation
+mode rejection without edits. These checks are opt-in because CI still uses
+the published formatter built against the earlier compiler.
+
+the tests cover real CLI formatting, byte preservation, document changes,
 workspace trust, cancellation, deadlines and process cleanup.
 
 with a desktop vs code and a working display, run the separate native host test:

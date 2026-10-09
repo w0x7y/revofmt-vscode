@@ -101,6 +101,33 @@ test('provides no edits for empty or already-formatted real CLI buffers', async 
     assert.deepEqual(await provider.provideDocumentFormattingEdits(document(source), {}, cancellation()), []);
   }
 });
+test('preserves supported interpolation modes through the real CLI', async () => {
+  // Revo Parser.zig covers :v, :?, :p and the lone :d atom.
+  const provider = createProvider(api({ executable: defaults.executable }));
+  const source = 'let t=1\nprint("#{t:v} #{t:?} #{t:p} #{:d}")';
+  const expected = 'let t = 1\nprint("#{t:v} #{t:?} #{t:p} #{:d}")\n';
+  const doc = document(source);
+  assert.equal(apply(doc, await provider.provideDocumentFormattingEdits(doc, {}, cancellation())), expected);
+  assert.deepEqual(await provider.provideDocumentFormattingEdits(document(expected), {}, cancellation()), []);
+});
+test('current compiler syntax rejection returns no edits', {
+  skip: process.env.REVOFMT_CURRENT_SYNTAX !== '1',
+}, async () => {
+  // Revo 71115de requires range-start/step adjacency; e94e6d8 rejects :d modes.
+  for (const source of [
+    'for i in 0 ..5 do\nprint(i)\nend',
+    'for i in 0..2 ..10 do\nprint(i)\nend',
+    'let t=1\nprint("#{t:d}")',
+  ]) {
+    const vscode = api({ executable: defaults.executable });
+    const provider = createProvider(vscode);
+    const doc = document(source);
+    const edits = await provider.provideDocumentFormattingEdits(doc, {}, cancellation());
+    assert.deepEqual(edits, [], source);
+    assert.equal(apply(doc, edits), source);
+    assert.ok(vscode.errors.length > 0, 'syntax rejection must report an error');
+  }
+});
 test('applies real CLI CRLF multiline output exactly in a CRLF buffer', async () => {
   const provider = createProvider(api({ executable: defaults.executable }));
   const doc = document("let x='a\r\nb'\r\nlet y=2\r\n", 2);

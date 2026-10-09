@@ -6,6 +6,7 @@ const { defaults, controlled } = require('./helpers');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const { spawn } = require('node:child_process');
 
 test('formats stdin with the real CLI and reaches a byte-identical fixed point', async () => {
   const output = await format('let x=1', defaults);
@@ -86,3 +87,57 @@ test('timeout and cancellation terminate the direct subprocess', async () => {
     }
   } finally { fs.rmSync(directory, { recursive: true, force: true }); }
 });
+
+for (const cancel of [false, true]) {
+  test(`${cancel ? 'cancellation' : 'timeout'} releases inherited descendant pipes`, async () => {
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'revofmt-vscode-pipes-'));
+    const pidPath = path.join(directory, 'descendant.pid');
+    let worker;
+    let deadline;
+    try {
+      // A separate caller must exit after rejection, even while the descendant
+      // is alive. Promise rejection alone does not prove transport cleanup.
+      worker = spawn(process.execPath, ['-e', `
+        const fs = require('node:fs');
+        const { setTimeout: delay } = require('node:timers/promises');
+        const { format } = require(${JSON.stringify(require.resolve('../src/transport'))});
+        const controller = new AbortController();
+        const pending = format(${JSON.stringify(`inherited:${pidPath}`)},
+          ${JSON.stringify({ ...controlled(), timeoutMs: cancel ? 2000 : 500 })}, controller.signal);
+        async function main() {
+          if (${cancel}) {
+            while (!fs.existsSync(${JSON.stringify(pidPath)})) await delay(5);
+            await delay(30);
+            controller.abort();
+          }
+          try { await pending; process.exitCode = 2; }
+          catch (error) { console.log(error.message); }
+        }
+        main().catch(error => { console.error(error); process.exitCode = 1; });
+      `], { stdio: ['ignore', 'pipe', 'pipe'] });
+      let stdout = ''; let stderr = ''; let timedOut = false;
+      worker.stdout.setEncoding('utf8').on('data', chunk => { stdout += chunk; });
+      worker.stderr.setEncoding('utf8').on('data', chunk => { stderr += chunk; });
+      deadline = setTimeout(() => { timedOut = true; worker.kill('SIGKILL'); }, 1500);
+      const [code, signal] = await new Promise((resolve, reject) => {
+        worker.once('error', reject);
+        worker.once('close', (code, signal) => resolve([code, signal]));
+      });
+      assert.equal(timedOut, false, 'settled transport must release pipes before descendant EOF');
+      assert.equal(code, 0, stderr);
+      assert.equal(signal, null);
+      assert.match(stdout, cancel ? /canceled/ : /timed out/);
+      assert.equal(stderr, '');
+      assert.ok(fs.existsSync(pidPath), 'wrapper started its inherited-pipe descendant');
+      process.kill(Number(fs.readFileSync(pidPath, 'utf8')), 0);
+    } finally {
+      clearTimeout(deadline);
+      worker?.kill('SIGKILL');
+      if (fs.existsSync(pidPath)) {
+        try { process.kill(Number(fs.readFileSync(pidPath, 'utf8')), 'SIGKILL'); }
+        catch (error) { if (error.code !== 'ESRCH') throw error; }
+      }
+      fs.rmSync(directory, { recursive: true, force: true });
+    }
+  });
+}

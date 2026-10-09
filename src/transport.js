@@ -28,6 +28,11 @@ async function format(source, settings, signal) {
       signal?.removeEventListener('abort', cancel);
       if (error) {
         child.kill('SIGKILL');
+        // An exited wrapper may leave these pipes inherited by a descendant.
+        // Settlement owns their lifetime, independently of the child's close.
+        child.stdin.destroy();
+        child.stdout.destroy();
+        child.stderr.destroy();
         const diagnostic = Buffer.concat(stderr).toString('utf8').trim();
         reject(new Error(diagnostic ? `${error.message}: ${diagnostic}` : error.message));
       } else resolve(output);

@@ -4,6 +4,20 @@ let source = '';
 process.stdin.setEncoding('utf8');
 process.stdin.on('data', chunk => { source += chunk; });
 process.stdin.on('end', () => {
+  if (source.startsWith('inherited:')) {
+    // The wrapper exits while its bounded descendant keeps both output pipes.
+    const child = require('node:child_process').spawn(process.execPath, ['-e', `
+      process.stdout.on('error', () => {});
+      process.stderr.on('error', () => {});
+      setTimeout(() => {
+        process.stdout.write('late descendant output');
+        process.stderr.write('late descendant diagnostic');
+      }, 3000);
+    `], { stdio: ['ignore', process.stdout, process.stderr] });
+    require('node:fs').writeFileSync(source.slice(10), String(child.pid));
+    child.unref();
+    process.exit(0);
+  }
   if (source.startsWith('hang:')) {
     require('node:fs').writeFileSync(source.slice(5), String(process.pid));
     setInterval(() => {}, 1000);
