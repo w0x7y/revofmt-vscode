@@ -21,13 +21,13 @@ check that it's on your PATH:
 revofmt --version
 ```
 
-download the [VSIX](https://github.com/w0x7y/revofmt-vscode/releases/download/v0.1.3/revofmt-0.1.3.vsix)
-and [SHA256SUMS](https://github.com/w0x7y/revofmt-vscode/releases/download/v0.1.3/SHA256SUMS)
+download the [VSIX](https://github.com/w0x7y/revofmt-vscode/releases/download/v0.1.4/revofmt-0.1.4.vsix)
+and [SHA256SUMS](https://github.com/w0x7y/revofmt-vscode/releases/download/v0.1.4/SHA256SUMS)
 from the standalone extension release. from the directory containing both files:
 
 ```sh
 sha256sum --check SHA256SUMS && \
-  code --install-extension revofmt-0.1.3.vsix
+  code --install-extension revofmt-0.1.4.vsix
 ```
 
 to build the extension yourself, use node.js >=22 and npm:
@@ -37,11 +37,11 @@ git clone https://github.com/w0x7y/revofmt-vscode.git
 cd revofmt-vscode
 npm ci
 npm run package
-code --install-extension revofmt-0.1.3.vsix
+code --install-extension revofmt-0.1.4.vsix
 ```
 
 you can also use **Extensions: Install from VSIX** in the command palette.
-the first marketplace upload is pending account sign-in.
+the first marketplace upload is being prepared.
 [the publishing guide](docs/publishing.md) describes the prepared upload.
 
 open a `.rv` or `.revo` file in a trusted workspace. the language should say

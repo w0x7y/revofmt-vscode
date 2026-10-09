@@ -1,7 +1,7 @@
 # marketplace publishing
 
-The first Marketplace upload is pending Microsoft account sign-in. The package
-uses extension ID `w0x7y.revofmt`, version `0.1.3`, and the MIT license.
+The first Marketplace upload is being prepared. The package
+uses extension ID `w0x7y.revofmt`, version `0.1.4`, and the MIT license.
 
 ## prepare the upload
 
@@ -13,18 +13,19 @@ REVOFMT_BIN=/absolute/path/to/revofmt scripts/verify
 npm run package
 ```
 
-The upload file is `revofmt-0.1.3.vsix`. It contains the extension runtime,
-metadata, README and license. Tests, packaging dependencies and repository-only
+The upload file is `revofmt-0.1.4.vsix`. It contains the extension runtime,
+metadata, the 512 × 512 PNG icon in `images/icon.png`, README and license.
+Tests, packaging dependencies and repository-only
 guides are excluded. The formatter executable is installed separately.
 
 ## GitHub release
 
-The standalone `v0.1.3` release distributes `revofmt-0.1.3.vsix` and its
+The standalone `v0.1.4` release distributes `revofmt-0.1.4.vsix` and its
 `SHA256SUMS` manifest. Build the VSIX from the release checkout, then generate
 the manifest in the same directory:
 
 ```sh
-sha256sum revofmt-0.1.3.vsix > SHA256SUMS
+sha256sum revofmt-0.1.4.vsix > SHA256SUMS
 sha256sum --check SHA256SUMS
 ```
 
@@ -56,7 +57,7 @@ Changing it also changes `editor.defaultFormatter` and the extension identity.
 With publishing authentication already configured, upload the reviewed package:
 
 ```sh
-npx --no-install vsce publish --packagePath revofmt-0.1.3.vsix
+npx --no-install vsce publish --packagePath revofmt-0.1.4.vsix
 ```
 
 See Microsoft's [publishing guide](https://code.visualstudio.com/api/working-with-extensions/publishing-extension)
@@ -66,12 +67,12 @@ this repository; the existing CI verifies tests and produces a VSIX artifact.
 
 ## current status
 
-On 2026-10-07, publishing preparation checked the manifest and account access.
-No local publishing credential or signed-in Marketplace session was available.
-The owner chose to handle Microsoft sign-in later. No Marketplace upload has
-been made as part of this preparation.
+On 2026-10-09, publisher `w0x7y` was available in the public Marketplace.
+The extension listing was not yet public. Version `0.1.4` is prepared for upload
+with the supplied Revo icon; publication still requires Marketplace validation.
 
-All 52 unit and process checks passed against the real release formatter. The
-rebuilt VSIX contains 10 files; its runtime and license match this checkout, and
-its README links resolve to the public repository. Native host verification is
-recorded separately in the [development guide](development.md#standalone-verification).
+All 56 unit and process checks passed against formatter `0.1.2` with current
+syntax checks enabled. The rebuilt VSIX contains 11 files, including the original
+512 × 512 PNG and its Marketplace icon declaration. Runtime and license bytes
+match this checkout. The separate native host check is documented in the
+[development guide](development.md#standalone-verification).

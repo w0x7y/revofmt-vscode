@@ -62,10 +62,11 @@ npm ci
 npm run package
 ```
 
-The pinned development-only `@vscode/vsce` builds `revofmt-0.1.3.vsix`.
+The pinned development-only `@vscode/vsce` builds `revofmt-0.1.4.vsix`.
 The installed extension has no runtime npm dependencies. `.vscodeignore` excludes
 tests, npm dependencies, lockfiles and repository-only guides from the archive.
-Runtime source, package metadata, README and the MIT license are included.
+Runtime source, package metadata, `images/icon.png`, README and the MIT license
+are included.
 Rebuild whenever any of those files change.
 
 The CI workflow downloads formatter `v0.1.2` for Linux x86_64 GNU and verifies
