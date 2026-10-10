@@ -21,7 +21,10 @@ function createProvider(vscode, run = format) {
         && document.version === version && document.eol === eol;
       try {
         if (!vscode.workspace.isTrusted) throw new Error('Formatting requires a trusted workspace because it executes revofmt');
-        const options = settings(vscode.workspace.getConfiguration('revofmt', document.uri));
+        // Only a file-backed document has a path from which the CLI can find
+        // revofmt.toml. Untitled and other schemes get the settings alone.
+        const filePath = document.uri.scheme === 'file' ? document.uri.fsPath : undefined;
+        const options = { ...settings(vscode.workspace.getConfiguration('revofmt', document.uri)), filePath };
         const source = document.getText();
         const output = await run(source, options, operation.signal);
         if (!current() || !vscode.workspace.isTrusted) return [];

@@ -4,6 +4,9 @@ const assert = require('node:assert/strict');
 const { createProvider } = require('../src/provider');
 const { activateWithApi } = require('../src/extension');
 const manifest = require('../package.json');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
 const { defaults, document, api, cancellation, apply } = require('./helpers');
 
 test('manifest recognizes both filenames and registers a native formatting provider', async () => {
@@ -19,15 +22,59 @@ test('manifest recognizes both filenames and registers a native formatting provi
   assert.equal(apply(doc, edits), 'let x = 1\n');
   for (const item of context.subscriptions) item.dispose();
 });
+test('manifest contributes resource-scoped layout settings that match the validator', () => {
+  const properties = manifest.contributes.configuration.properties;
+  assert.deepEqual(properties['revofmt.indentStyle'], {
+    type: 'string', enum: ['space', 'tab'], default: 'space', scope: 'resource',
+    description: 'Indent with spaces or one tab per level. A project revofmt.toml takes precedence.',
+  });
+  const { description: _, ...maxBlankLines } = properties['revofmt.maxBlankLines'];
+  assert.deepEqual(maxBlankLines, { type: 'integer', default: 1, minimum: 0, maximum: 8, scope: 'resource' });
+  for (const name of ['indentWidth', 'lineWidth', 'indentStyle', 'maxBlankLines']) {
+    assert.match(properties[`revofmt.${name}`].description, /A project revofmt\.toml takes precedence\./, name);
+  }
+  // The contributed defaults are exactly what the validator and tests assume.
+  for (const key of ['indentWidth', 'lineWidth', 'indentStyle', 'maxBlankLines', 'timeoutMs']) {
+    assert.equal(properties[`revofmt.${key}`].default, defaults[key], key);
+  }
+});
 test('uses formatter defaults independently of editor tab size and passes resource settings', async () => {
   const vscode = api();
   const provider = createProvider(vscode, async (text, settings) => {
     assert.equal(text, 'let x=1');
-    assert.deepEqual(settings, { ...defaults, executable: 'revofmt' });
+    assert.deepEqual(settings, { ...defaults, executable: 'revofmt', filePath: undefined });
     return 'let x = 1\n';
   });
   const doc = document('let x=1');
   assert.equal(apply(doc, await provider.provideDocumentFormattingEdits(doc, { tabSize: 8 }, cancellation())), 'let x = 1\n');
+});
+test('passes layout settings and the file path of a file-backed document', async () => {
+  const seen = [];
+  const vscode = api({ indentStyle: 'tab', maxBlankLines: 0, indentWidth: 4 });
+  const provider = createProvider(vscode, async (_, settings) => { seen.push(settings); return 'let x = 1\n'; });
+  const file = document('let x=1', 1, { scheme: 'file', fsPath: '/project/a.rv', toString: () => 'file:///project/a.rv' });
+  await provider.provideDocumentFormattingEdits(file, {}, cancellation());
+  assert.deepEqual(seen[0], { ...defaults, executable: 'revofmt', indentWidth: 4, indentStyle: 'tab', maxBlankLines: 0, filePath: '/project/a.rv' });
+});
+test('omits the file path for untitled and other non-file documents', async () => {
+  const seen = [];
+  const provider = createProvider(api(), async (_, settings) => { seen.push(settings); return 'let x = 1\n'; });
+  const untitled = document('let x=1');
+  const remote = document('let x=1', 1, { scheme: 'vscode-vfs', fsPath: '/project/a.rv', toString: () => 'vscode-vfs:/project/a.rv' });
+  for (const doc of [untitled, remote]) await provider.provideDocumentFormattingEdits(doc, {}, cancellation());
+  assert.equal(seen.length, 2);
+  for (const settings of seen) assert.equal(settings.filePath, undefined);
+});
+test('a revofmt.toml beside a file-backed document overrides the editor settings end to end', async () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'revofmt-vscode-provider-'));
+  try {
+    fs.writeFileSync(path.join(directory, 'revofmt.toml'), 'indent_style = "tab"\n');
+    const provider = createProvider(api({ executable: defaults.executable, indentStyle: 'space' }));
+    const file = document('do\nfoo()\nend', 1, { scheme: 'file', fsPath: path.join(directory, 'a.rv'), toString: () => 'file:' });
+    assert.equal(apply(file, await provider.provideDocumentFormattingEdits(file, {}, cancellation())), 'do\n\tfoo()\nend\n');
+    const unsaved = document('do\nfoo()\nend');
+    assert.equal(apply(unsaved, await provider.provideDocumentFormattingEdits(unsaved, {}, cancellation())), 'do\n  foo()\nend\n');
+  } finally { fs.rmSync(directory, { recursive: true, force: true }); }
 });
 test('returns correct UTF-16 ranges following a supplementary character', async () => {
   const doc = document("let x='😀'\nlet y=2\n");
@@ -42,7 +89,7 @@ test('does not launch in an untrusted workspace', async () => {
   assert.deepEqual(await provider.provideDocumentFormattingEdits(document('let x=1'), {}, cancellation()), []);
   assert.match(vscode.errors[0], /trust/i);
 });
-for (const [key, value] of [['indentWidth', 0], ['indentWidth', 9], ['indentWidth', null], ['lineWidth', 19], ['lineWidth', 241], ['lineWidth', '80'], ['timeoutMs', 0], ['timeoutMs', 1.5], ['timeoutMs', 2147483648], ['executable', ''], ['executable', 'x\0y']]) {
+for (const [key, value] of [['indentWidth', 0], ['indentWidth', 9], ['indentWidth', null], ['lineWidth', 19], ['lineWidth', 241], ['lineWidth', '80'], ['indentStyle', 'tabs'], ['indentStyle', null], ['maxBlankLines', -1], ['maxBlankLines', 9], ['maxBlankLines', 1.5], ['timeoutMs', 0], ['timeoutMs', 1.5], ['timeoutMs', 2147483648], ['executable', ''], ['executable', 'x\0y']]) {
   test(`rejects invalid ${key}=${JSON.stringify(value)} without launch`, async () => {
     const vscode = api({ [key]: value });
     const provider = createProvider(vscode, () => { assert.fail('invalid configuration launch'); });

@@ -1,7 +1,7 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { format } = require('../src/transport');
+const { format, argumentsFor } = require('../src/transport');
 const { defaults, controlled } = require('./helpers');
 const fs = require('node:fs');
 const os = require('node:os');
@@ -23,7 +23,48 @@ test('real CLI handles empty input and rejects syntax without output', async () 
   await assert.rejects(format('let x=', defaults), /exited.*2/);
 });
 test('spawns an executable directly with layout options and explicit stdin argument', async () => {
-  assert.equal(await format('args', { ...controlled(), indentWidth: 4, lineWidth: 24 }), '["--indent-width","4","--line-width","24","-"]');
+  assert.equal(await format('args', { ...controlled(), indentWidth: 4, lineWidth: 24 }),
+    '["--prefer-config","--indent-width","4","--line-width","24","--indent-style","space","--max-blank-lines","1","-"]');
+});
+test('passes the document path after --prefer-config and before the layout flags', async () => {
+  assert.equal(await format('args', { ...controlled(), indentWidth: 4, lineWidth: 24, filePath: '/project/a.rv' }),
+    '["--prefer-config","--stdin-filepath","/project/a.rv","--indent-width","4","--line-width","24","--indent-style","space","--max-blank-lines","1","-"]');
+});
+test('builds the exact argv for every layout setting and for a missing path', () => {
+  const layout = { indentWidth: 8, lineWidth: 240, indentStyle: 'tab', maxBlankLines: 0 };
+  assert.deepEqual(argumentsFor(layout), [
+    '--prefer-config', '--indent-width', '8', '--line-width', '240', '--indent-style', 'tab', '--max-blank-lines', '0', '-',
+  ]);
+  assert.deepEqual(argumentsFor({ ...layout, filePath: undefined }), argumentsFor(layout));
+  assert.deepEqual(argumentsFor({ ...layout, filePath: '/a b/\u00e9.rv' }), [
+    '--prefer-config', '--stdin-filepath', '/a b/\u00e9.rv', '--indent-width', '8', '--line-width', '240',
+    '--indent-style', 'tab', '--max-blank-lines', '0', '-',
+  ]);
+});
+test('a project revofmt.toml found from the document path overrides the layout settings', async () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'revofmt-vscode-config-'));
+  try {
+    fs.writeFileSync(path.join(directory, 'revofmt.toml'), 'indent_style = "tab"\n');
+    // The backing file need not exist; only its directory selects the project.
+    const filePath = path.join(directory, 'a.rv');
+    assert.equal(await format('do\nfoo()\nend', { ...defaults, filePath }), 'do\n\tfoo()\nend\n');
+    assert.equal(await format('do\nfoo()\nend', { ...defaults, indentStyle: 'space', indentWidth: 4, filePath }), 'do\n\tfoo()\nend\n');
+    // Without a path the CLI does no discovery, so the settings apply.
+    assert.equal(await format('do\nfoo()\nend', defaults), 'do\n  foo()\nend\n');
+  } finally { fs.rmSync(directory, { recursive: true, force: true }); }
+});
+test('real CLI applies the indent style and blank-line limit when no project file exists', async () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'revofmt-vscode-flags-'));
+  try {
+    const filePath = path.join(directory, 'a.rv');
+    assert.equal(await format('do\nfoo()\nend', { ...defaults, indentStyle: 'tab', filePath }), 'do\n\tfoo()\nend\n');
+    const source = 'let a=1\n\n\n\n\nlet b=2';
+    for (const [maxBlankLines, blanks] of [[0, 0], [1, 1], [3, 3], [8, 4]]) {
+      const output = await format(source, { ...defaults, maxBlankLines });
+      assert.equal(output, `let a = 1\n${'\n'.repeat(blanks)}let b = 2\n`);
+      assert.equal(await format(output, { ...defaults, maxBlankLines }), output);
+    }
+  } finally { fs.rmSync(directory, { recursive: true, force: true }); }
 });
 test('missing executable rejects usefully', async () => {
   await assert.rejects(format('x', { ...defaults, executable: '/missing/revofmt' }), /ENOENT/);

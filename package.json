@@ -2,7 +2,7 @@
   "name": "revo-formatter",
   "displayName": "Revofmt Code Formatter",
   "description": "Format Revo documents through the preservation-checked revofmt CLI.",
-  "version": "0.1.7",
+  "version": "0.2.0",
   "publisher": "w0x7y",
   "license": "MIT",
   "repository": {
@@ -65,7 +65,17 @@
           "minimum": 1,
           "maximum": 8,
           "scope": "resource",
-          "description": "Formatter indentation width, independent of editor tab size."
+          "description": "Formatter indentation width, independent of editor tab size. A project revofmt.toml takes precedence."
+        },
+        "revofmt.indentStyle": {
+          "type": "string",
+          "enum": [
+            "space",
+            "tab"
+          ],
+          "default": "space",
+          "scope": "resource",
+          "description": "Indent with spaces or one tab per level. A project revofmt.toml takes precedence."
         },
         "revofmt.lineWidth": {
           "type": "integer",
@@ -73,7 +83,15 @@
           "minimum": 20,
           "maximum": 240,
           "scope": "resource",
-          "description": "Formatter soft line-width target."
+          "description": "Formatter soft line-width target. A project revofmt.toml takes precedence."
+        },
+        "revofmt.maxBlankLines": {
+          "type": "integer",
+          "default": 1,
+          "minimum": 0,
+          "maximum": 8,
+          "scope": "resource",
+          "description": "Maximum consecutive blank lines to keep. A project revofmt.toml takes precedence."
         },
         "revofmt.timeoutMs": {
           "type": "integer",
@@ -89,7 +107,7 @@
   "scripts": {
     "test": "node --test tests/*.test.js",
     "test:host": "node tests/host/launch.js",
-    "package": "vsce package --no-dependencies --out revo-formatter-0.1.7.vsix"
+    "package": "vsce package --no-dependencies --out revo-formatter-0.2.0.vsix"
   },
   "devDependencies": {
     "@vscode/vsce": "4.0.0"

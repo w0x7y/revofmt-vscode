@@ -9,25 +9,28 @@ it works on your unsaved buffer. format-on-save is off until you enable it.
 
 ## get started
 
-you need vs code >=1.85 and [revofmt](https://github.com/w0x7y/revo-formatter).
+you need vs code >=1.85 and [revofmt](https://github.com/w0x7y/revo-formatter) 0.2.0 or newer.
 [download the formatter](https://github.com/w0x7y/revo-formatter#install)
 or [build it](https://github.com/w0x7y/revo-formatter#build-from-source).
 the download is for linux x86_64 GNU, with glibc >=2.34 and `libgcc_s`.
 this extension doesn't install the formatter for you.
 
-check that it's on your PATH:
+check that it's on your PATH and says 0.2.0 or newer:
 
 ```sh
 revofmt --version
 ```
 
-download the [VSIX](https://github.com/w0x7y/revofmt-vscode/releases/download/v0.1.7/revo-formatter-0.1.7.vsix)
-and [SHA256SUMS](https://github.com/w0x7y/revofmt-vscode/releases/download/v0.1.7/SHA256SUMS)
+an older formatter rejects the `--prefer-config` flag this extension passes, so
+formatting fails with exit code 2 until you update it.
+
+download the [VSIX](https://github.com/w0x7y/revofmt-vscode/releases/download/v0.2.0/revo-formatter-0.2.0.vsix)
+and [SHA256SUMS](https://github.com/w0x7y/revofmt-vscode/releases/download/v0.2.0/SHA256SUMS)
 from the standalone extension release. from the directory containing both files:
 
 ```sh
 sha256sum --check SHA256SUMS && \
-  code --install-extension revo-formatter-0.1.7.vsix
+  code --install-extension revo-formatter-0.2.0.vsix
 ```
 
 to build the extension yourself, use node.js >=22 and npm:
@@ -37,7 +40,7 @@ git clone https://github.com/w0x7y/revofmt-vscode.git
 cd revofmt-vscode
 npm ci
 npm run package
-code --install-extension revo-formatter-0.1.7.vsix
+code --install-extension revo-formatter-0.2.0.vsix
 ```
 
 you can also use **Extensions: Install from VSIX** in the command palette.
@@ -73,21 +76,40 @@ these are the defaults. put your changes in vs code's `settings.json`:
 {
   "revofmt.executable": "revofmt",
   "revofmt.indentWidth": 2,
+  "revofmt.indentStyle": "space",
   "revofmt.lineWidth": 80,
+  "revofmt.maxBlankLines": 1,
   "revofmt.timeoutMs": 5000
 }
 ```
 
 if vs code can't find the formatter, set `revofmt.executable` to its absolute
 path. paths are literal; `~`, environment variables and shell commands aren't
-expanded. indentation accepts `1` to `8` spaces. width accepts `20` to `240`
-columns and is a soft target. the timeout is in milliseconds, from `1` to
-`2147483647`.
+expanded. indentation accepts `1` to `8` columns per level. `revofmt.indentStyle`
+is `"space"` or `"tab"`; with `"tab"` each level is one tab and `indentWidth` is the
+number of columns a tab counts for. width accepts `20` to `240` columns and is a
+soft target. `revofmt.maxBlankLines` keeps `0` to `8` consecutive blank lines. the
+timeout is in milliseconds, from `1` to `2147483647`.
 
 formatting runs only in trusted workspaces. review a workspace's executable
 setting before trusting it. in SSH, containers or WSL, install the extension
 and formatter in that environment and use a path that exists there.
 browser-only and virtual workspaces aren't supported.
+
+### project configuration
+
+a `revofmt.toml` in the file's directory or the nearest parent directory takes
+precedence over the four layout settings above (`indentWidth`, `indentStyle`,
+`lineWidth` and `maxBlankLines`). when one applies, the editor settings are
+ignored and keys the file omits use revofmt's built-in defaults, not your
+settings. that makes the editor agree with `revofmt --check` in CI. the
+[configuration reference](https://github.com/w0x7y/revo-formatter/blob/main/docs/formatter.md#configuration)
+lists the keys.
+
+the extension sends a document's path only when it uses the `file` scheme.
+untitled and other documents have no path, so revofmt doesn't look for a
+`revofmt.toml` and your settings apply. the file needn't exist on disk yet; its
+directory selects the project.
 
 ## format on save
 
@@ -131,10 +153,11 @@ npm test                               # revofmt on PATH
 REVOFMT_BIN=/absolute/path/to/revofmt scripts/verify
 ```
 
-For formatter `v0.1.2` or a source build using Revo `e94e6d8` or later, add
+For formatter `v0.2.0` or a source build using Revo `e94e6d8` or later, add
 `REVOFMT_CURRENT_SYNTAX=1` to verify range adjacency and invalid interpolation
-mode rejection without edits. CI enables these checks with the pinned `v0.1.2`
-formatter. Leave the option unset when testing an older formatter.
+mode rejection without edits. CI enables these checks with the pinned `v0.2.0`
+formatter. Leave the option unset when testing an older formatter. The tests
+need formatter `v0.2.0` or newer because they pass `--prefer-config`.
 
 the tests cover real CLI formatting, byte preservation, document changes,
 workspace trust, cancellation, deadlines and process cleanup.

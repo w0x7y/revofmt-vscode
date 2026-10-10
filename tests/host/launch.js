@@ -29,6 +29,10 @@ async function main() {
     'workbench.startupEditor': 'none',
   }));
   for (const suffix of ['rv', 'revo']) await fs.writeFile(path.join(workspace, `example.${suffix}`), 'let x=1');
+  // A project file beside this document must override the (space) editor settings.
+  await fs.mkdir(path.join(workspace, 'configured'));
+  await fs.writeFile(path.join(workspace, 'configured', 'revofmt.toml'), 'indent_style = "tab"\n');
+  await fs.writeFile(path.join(workspace, 'configured', 'example.rv'), 'do\nfoo()\nend');
   const env = { ...process.env, XDG_CONFIG_HOME: path.join(directory, 'config') };
   delete env.VSCODE_IPC_HOOK_CLI;
   delete env.VSCODE_PORTABLE;

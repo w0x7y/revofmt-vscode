@@ -1,11 +1,12 @@
 'use strict';
 const path = require('node:path');
 const executable = process.env.REVOFMT_BIN || 'revofmt';
-const defaults = { executable, indentWidth: 2, lineWidth: 80, timeoutMs: 5000 };
+const defaults = { executable, indentWidth: 2, lineWidth: 80, indentStyle: 'space', maxBlankLines: 1, timeoutMs: 5000 };
+const untitled = { scheme: 'untitled', toString: () => 'untitled:test.rv' };
 
-function document(text, eol = 1) {
+function document(text, eol = 1, uri = untitled) {
   return {
-    version: 1, eol, isClosed: false, uri: { toString: () => 'untitled:test.rv' },
+    version: 1, eol, isClosed: false, uri,
     getText: () => text,
     positionAt(offset) {
       const before = text.slice(0, offset);

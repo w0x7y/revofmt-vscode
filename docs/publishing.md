@@ -1,7 +1,7 @@
 # marketplace publishing
 
 The replacement Marketplace upload is being prepared. The package
-uses extension ID `w0x7y.revo-formatter`, version `0.1.7`, display name
+uses extension ID `w0x7y.revo-formatter`, version `0.2.0`, display name
 `Revofmt Code Formatter`, and the MIT license.
 
 ## prepare the upload
@@ -14,19 +14,19 @@ REVOFMT_BIN=/absolute/path/to/revofmt scripts/verify
 npm run package
 ```
 
-The upload file is `revo-formatter-0.1.7.vsix`. It contains the extension runtime,
+The upload file is `revo-formatter-0.2.0.vsix`. It contains the extension runtime,
 metadata, the 512 × 512 PNG icon in `images/icon.png`, README and license.
 Tests, packaging dependencies and repository-only
 guides are excluded. The formatter executable is installed separately.
 
 ## GitHub release
 
-The standalone `v0.1.7` release distributes `revo-formatter-0.1.7.vsix` and its
+The standalone `v0.2.0` release distributes `revo-formatter-0.2.0.vsix` and its
 `SHA256SUMS` manifest. Build the VSIX from the release checkout, then generate
 the manifest in the same directory:
 
 ```sh
-sha256sum revo-formatter-0.1.7.vsix > SHA256SUMS
+sha256sum revo-formatter-0.2.0.vsix > SHA256SUMS
 sha256sum --check SHA256SUMS
 ```
 
@@ -63,7 +63,7 @@ Changing it also changes `editor.defaultFormatter` and the extension identity.
 With publishing authentication already configured, upload the reviewed package:
 
 ```sh
-npx --no-install vsce publish --packagePath revo-formatter-0.1.7.vsix
+npx --no-install vsce publish --packagePath revo-formatter-0.2.0.vsix
 ```
 
 See Microsoft's [publishing guide](https://code.visualstudio.com/api/working-with-extensions/publishing-extension)
@@ -80,15 +80,20 @@ already exists. Version `0.1.5` introduced the replacement ID
 small `fmt` text. The next Marketplace upload failed because the display name
 `Revo Formatter` is taken. Version `0.1.7` uses `Revofmt Code Formatter` as its
 display name and settings title. The extension ID, icon and runtime are unchanged.
+Version `0.2.0` adds the `indentStyle` and `maxBlankLines` settings and passes
+`--prefer-config` and the document path, so a project `revofmt.toml` takes
+precedence. It requires formatter `0.2.0` or newer.
 
 GitHub publication provides the reviewed package. The new display name still
 requires Marketplace acceptance and validation. If the `revo-formatter` listing
 already exists, use its **Update** action.
 
-All 56 unit and process checks passed against formatter `0.1.2` with current
-syntax checks enabled. The rebuilt VSIX contains 11 files. Its manifest version,
-icon declaration, PNG bytes, runtime and license match this checkout. The icon
-is 512 × 512 and retains the original outer-corner alpha mask.
+All 69 unit and process checks passed against formatter `0.2.0` with current
+syntax checks enabled, and the native host check passed. The `0.2.0` VSIX has not
+been built yet. Before uploading it, build it from the release checkout and
+confirm its manifest version, icon declaration, PNG bytes, runtime and license
+match that checkout. The icon is 512 × 512 and retains the original
+outer-corner alpha mask.
 
 The [icon editing record](icon.md) includes the generation prompt and asset
 preparation. The separate native host check is documented in the

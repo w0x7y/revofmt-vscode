@@ -7,8 +7,9 @@ and documentation. The current extension ID is `w0x7y.revo-formatter`.
 
 ## Run the tests
 
-Use Node.js >=20, npm and an installed `revofmt`. Packaging requires Node.js
->=22. Unit and process tests need no installed npm dependencies:
+Use Node.js >=20, npm and an installed `revofmt` 0.2.0 or newer, because every
+request passes `--prefer-config`. Packaging requires Node.js >=22. Unit and
+process tests need no installed npm dependencies:
 
 ```sh
 npm test
@@ -35,7 +36,9 @@ REVOFMT_BIN=/absolute/path/to/revofmt VSCODE_BIN=/absolute/path/to/code npm run 
 It opens a separate window with temporary user settings, an empty extensions
 directory and a disposable trusted workspace. It checks both file suffixes,
 automatic language activation, native formatting provider edits, exact output
-from unsaved buffers, no backing-file writes, and idempotence.
+from unsaved buffers, no backing-file writes, and idempotence. It also checks
+that a `revofmt.toml` beside a file-backed document overrides the editor
+settings, and that an untitled document uses the editor settings.
 
 The runner waits up to 60 seconds for an atomically published host result, even
 when a `code` wrapper exits early with code zero. Signals and nonzero launcher
@@ -62,18 +65,37 @@ npm ci
 npm run package
 ```
 
-The pinned development-only `@vscode/vsce` builds `revo-formatter-0.1.7.vsix`.
+The pinned development-only `@vscode/vsce` builds `revo-formatter-0.2.0.vsix`.
 The installed extension has no runtime npm dependencies. `.vscodeignore` excludes
 tests, npm dependencies, lockfiles and repository-only guides from the archive.
 Runtime source, package metadata, `images/icon.png`, README and the MIT license
 are included.
 Rebuild whenever any of those files change.
 
-The CI workflow downloads formatter `v0.1.2` for Linux x86_64 GNU and verifies
-SHA-256 `515bc4c74e20f52b111310d27c63fe3bbf33bf58ed17c181815ac39408e3cb6e`.
+The CI workflow downloads formatter `v0.2.0` for Linux x86_64 GNU and verifies
+SHA-256 `497b274d0e26f479f1af64177b26b9ca261fb1e07d347cdd0596c79c22264349`.
 Update the formatter release and checksum together after verifying a new release.
 CI enables `REVOFMT_CURRENT_SYNTAX=1`, runs the adapter tests and builds the
 VSIX; it does not start a native editor.
+
+## Formatter arguments
+
+`argumentsFor` in `src/transport.js` builds the argument array, in this order:
+
+```sh
+revofmt --prefer-config [--stdin-filepath PATH] --indent-width N --line-width N \
+  --indent-style space|tab --max-blank-lines N -
+```
+
+The provider supplies `PATH` only when `document.uri.scheme` is `file`, using its
+`fsPath`. The file need not exist. With a path, the CLI finds the nearest
+`revofmt.toml`, and `--prefer-config` makes it override all four layout
+settings; keys it omits use the formatter's built-in defaults. Untitled and
+other documents send no path, so the settings apply as flags. A formatter older
+than 0.2.0 rejects `--prefer-config` with exit code 2, which the provider
+reports as an error. The formatter's
+[precedence rules](https://github.com/w0x7y/revo-formatter/blob/main/docs/formatter.md#precedence)
+own these semantics.
 
 ## Buffer preservation
 
@@ -106,6 +128,14 @@ The VSIX was built and installed into an isolated VS Code profile. Its runtime
 bytes and full license match this checkout, and it excludes tests and npm
 dependencies. README examples, relative links and manifest/lockfile versions
 were checked. These checks did not modify personal editor settings.
+
+On 2026-10-10, with formatter `0.2.0` (SHA-256
+`497b274d0e26f479f1af64177b26b9ca261fb1e07d347cdd0596c79c22264349`), all 69
+tests passed with `REVOFMT_CURRENT_SYNTAX=1`; without it, 68 passed and the
+current-syntax test was skipped. The native host
+regression passed on Linux x86_64 GNU with VS Code 1.141.0 and extension 0.2.0,
+including the `revofmt.toml` and untitled-document checks. The VSIX was not
+rebuilt for this record.
 
 ## Marketplace publishing
 

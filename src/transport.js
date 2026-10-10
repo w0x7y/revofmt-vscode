@@ -4,6 +4,20 @@ const { TextDecoder } = require('node:util');
 const SOURCE_LIMIT = 262144;
 const STDERR_LIMIT = 65536;
 
+// A found revofmt.toml overrides the layout flags (--prefer-config). Without a
+// path the CLI does no discovery, so the flags are the whole configuration.
+function argumentsFor(settings) {
+  return [
+    '--prefer-config',
+    ...(settings.filePath === undefined ? [] : ['--stdin-filepath', settings.filePath]),
+    '--indent-width', String(settings.indentWidth),
+    '--line-width', String(settings.lineWidth),
+    '--indent-style', settings.indentStyle,
+    '--max-blank-lines', String(settings.maxBlankLines),
+    '-',
+  ];
+}
+
 async function format(source, settings, signal) {
   if (signal?.aborted) throw new Error('Formatting canceled');
   // Buffer.from substitutes lone surrogates. Refuse that lossy conversion.
@@ -14,10 +28,7 @@ async function format(source, settings, signal) {
   if (input.toString('utf8') !== source) throw new Error('source contains an unpaired UTF-16 surrogate');
 
   return new Promise((resolve, reject) => {
-    const child = spawn(settings.executable, [
-      '--indent-width', String(settings.indentWidth),
-      '--line-width', String(settings.lineWidth), '-',
-    ], { shell: false, windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] });
+    const child = spawn(settings.executable, argumentsFor(settings), { shell: false, windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] });
     const stdout = []; const stderr = [];
     let outputBytes = 0; let errorBytes = 0; let settled = false;
     let timer;
@@ -74,4 +85,4 @@ async function format(source, settings, signal) {
     else child.stdin.end(input);
   });
 }
-module.exports = { format };
+module.exports = { format, argumentsFor };
