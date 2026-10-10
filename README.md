@@ -98,11 +98,11 @@ browser-only and virtual workspaces aren't supported.
 
 ### project configuration
 
-a `revofmt.toml` in the file's directory or the nearest parent directory takes
-precedence over the four layout settings above (`indentWidth`, `indentStyle`,
-`lineWidth` and `maxBlankLines`). when one applies, the editor settings are
-ignored and keys the file omits use revofmt's built-in defaults, not your
-settings. that makes the editor agree with `revofmt --check` in CI. the
+a `revofmt.toml` in the file's directory or the nearest ancestor directory that
+has one takes precedence over the four layout settings above (`indentWidth`,
+`indentStyle`, `lineWidth` and `maxBlankLines`). when one applies, the editor
+settings are ignored and keys the file omits use revofmt's built-in defaults,
+not your settings. that makes the editor agree with `revofmt --check` in CI. the
 [configuration reference](https://github.com/w0x7y/revo-formatter/blob/main/docs/formatter.md#configuration)
 lists the keys.
 
