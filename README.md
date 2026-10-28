@@ -155,7 +155,7 @@ REVOFMT_BIN=/absolute/path/to/revofmt scripts/verify
 
 For formatter `v0.2.0` or a source build using Revo `e94e6d8` or later, add
 `REVOFMT_CURRENT_SYNTAX=1` to verify range adjacency and invalid interpolation
-mode rejection without edits. CI enables these checks with the pinned `v0.2.0`
+mode rejection without edits. CI enables these checks with the pinned `v0.3.0`
 formatter. Leave the option unset when testing an older formatter. The tests
 need formatter `v0.2.0` or newer because they pass `--prefer-config`.
 

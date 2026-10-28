@@ -72,8 +72,8 @@ Runtime source, package metadata, `images/icon.png`, README and the MIT license
 are included.
 Rebuild whenever any of those files change.
 
-The CI workflow downloads formatter `v0.2.0` for Linux x86_64 GNU and verifies
-SHA-256 `497b274d0e26f479f1af64177b26b9ca261fb1e07d347cdd0596c79c22264349`.
+The CI workflow downloads formatter `v0.3.0` for Linux x86_64 GNU and verifies
+SHA-256 `d3ec801e6493b78ca385a4a9f42df8f4b736ceb8a61ec6383cce95680fa95679`.
 Update the formatter release and checksum together after verifying a new release.
 CI enables `REVOFMT_CURRENT_SYNTAX=1`, runs the adapter tests and builds the
 VSIX; it does not start a native editor.
@@ -136,6 +136,11 @@ current-syntax test was skipped. The native host
 regression passed on Linux x86_64 GNU with VS Code 1.141.0 and extension 0.2.0,
 including the `revofmt.toml` and untitled-document checks. The VSIX was not
 rebuilt for this record.
+
+On 2026-10-28, with formatter `0.3.0` (SHA-256
+`d3ec801e6493b78ca385a4a9f42df8f4b736ceb8a61ec6383cce95680fa95679`), all 69
+tests passed with `REVOFMT_CURRENT_SYNTAX=1`. The native host regression and the
+VSIX were not rerun for this record.
 
 ## Marketplace publishing
 
