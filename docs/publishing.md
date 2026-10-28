@@ -1,7 +1,6 @@
 # marketplace publishing
 
-The replacement Marketplace upload is being prepared. The package
-uses extension ID `w0x7y.revo-formatter`, version `0.2.0`, display name
+The package uses extension ID `w0x7y.revo-formatter`, version `0.2.1`, display name
 `Revofmt Code Formatter`, and the MIT license.
 
 ## prepare the upload
@@ -14,7 +13,8 @@ REVOFMT_BIN=/absolute/path/to/revofmt scripts/verify
 npm run package
 ```
 
-The upload file is `revo-formatter-0.2.0.vsix`. It contains the extension runtime,
+The upload file is `revo-formatter-0.2.1.vsix`. The same file goes to the VS Code
+Marketplace and to Open VSX, which Cursor and other VS Code forks install from. It contains the extension runtime,
 metadata, the 512 × 512 PNG icon in `images/icon.png`, README and license.
 Tests, packaging dependencies and repository-only
 guides are excluded. The formatter executable is installed separately.
@@ -50,7 +50,7 @@ Verify recognition of `.rv` and `.revo`, formatting of an unsaved buffer,
 idempotence and opt-in save formatting in a disposable trusted workspace. Only
 after the listing is public should the README recommend Marketplace installation.
 
-For later releases, select the existing extension and choose **More Actions** →
+For later releases, select the existing `Revofmt Code Formatter` extension and choose **More Actions** →
 **Update**, then upload the new VSIX. Removing an extension permanently reserves
 its name, including for its original publisher; see Microsoft's
 [removal policy](https://code.visualstudio.com/api/working-with-extensions/publishing-extension#removing-extensions).
@@ -58,12 +58,26 @@ its name, including for its original publisher; see Microsoft's
 The manifest's publisher ID must match an account you can publish through.
 Changing it also changes `editor.defaultFormatter` and the extension identity.
 
+## publish to Open VSX for Cursor
+
+Cursor installs extensions from [Open VSX](https://open-vsx.org). The `w0x7y`
+namespace there is already owned by this publisher.
+
+1. Sign in at [open-vsx.org](https://open-vsx.org) with the GitHub account that
+   owns the namespace, and accept the Eclipse publisher agreement if prompted.
+2. Open **Settings** → **Extensions** → **Publish extension** and upload the VSIX.
+3. Check `https://open-vsx.org/extension/w0x7y/revo-formatter`, then search for
+   `Revofmt Code Formatter` in Cursor's Extensions view and install it.
+
+With an Open VSX access token, `npx ovsx publish revo-formatter-0.2.1.vsix -p <token>`
+uploads the same file. `ovsx` is not a dependency of this repository.
+
 ## publish through the CLI
 
 With publishing authentication already configured, upload the reviewed package:
 
 ```sh
-npx --no-install vsce publish --packagePath revo-formatter-0.2.0.vsix
+npx --no-install vsce publish --packagePath revo-formatter-0.2.1.vsix
 ```
 
 See Microsoft's [publishing guide](https://code.visualstudio.com/api/working-with-extensions/publishing-extension)
@@ -84,16 +98,18 @@ Version `0.2.0` adds the `indentStyle` and `maxBlankLines` settings and passes
 `--prefer-config` and the document path, so a project `revofmt.toml` takes
 precedence. It requires formatter `0.2.0` or newer.
 
-GitHub publication provides the reviewed package. The new display name still
-requires Marketplace acceptance and validation. If the `revo-formatter` listing
-already exists, use its **Update** action.
+On 2026-10-28 the VS Code Marketplace listed `w0x7y.revo-formatter` versions
+`0.1.7` and `0.2.0`, so later uploads use its **Update** action. Open VSX had no
+`revo-formatter` listing in the `w0x7y` namespace, so the first upload there
+creates it.
 
-All 69 unit and process checks passed against formatter `0.2.0` with current
-syntax checks enabled, and the native host check passed. The `0.2.0` VSIX has not
-been built yet. Before uploading it, build it from the release checkout and
-confirm its manifest version, icon declaration, PNG bytes, runtime and license
-match that checkout. The icon is 512 × 512 and retains the original
-outer-corner alpha mask.
+Version `0.2.1` has the same runtime, settings, icon and license as `0.2.0`;
+only README wording changed. It still requires formatter `0.2.0` or newer and
+works with formatter `0.3.0`, which supports Revo `eefa192` syntax. All 69 unit
+and process checks passed against the `0.3.0` release binary with current syntax
+checks enabled. The `0.2.1` VSIX was built with the pinned `@vscode/vsce` 4.0.0;
+its manifest version, runtime files, 512 × 512 icon and license match the
+checkout. The native host check was not rerun for `0.2.1`.
 
 The [icon editing record](icon.md) includes the generation prompt and asset
 preparation. The separate native host check is documented in the
